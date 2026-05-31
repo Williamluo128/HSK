@@ -18,7 +18,8 @@
     "content:update-l1-pictures": "tsx scripts/update-l1-picture-sections.ts",
     "content:sync-l1-pictures": "tsx scripts/sync-l1-picture-sections.ts",
     "content:sync-l1-lesson-images": "tsx scripts/sync-l1-lesson-images.ts",
-    "content:sync-all": "npm run content:crop-l1-images && npm run content:crop-l2-images && npm run content:sync-l1-pictures && npm run content:sync-l1-lesson-images"
+    "content:sync-all": "npm run content:crop-l1-images && npm run content:crop-l2-images && npm run content:sync-l1-pictures && npm run content:sync-l1-lesson-images",
+    "content:download-audio": "tsx scripts/download-external-audio.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",

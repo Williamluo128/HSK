@@ -64,7 +64,7 @@ cp .env.example .env
 ```env
 DATABASE_URL="mysql://用户名:密码@localhost:3306/hsk"
 AUTH_SECRET="用 openssl rand -base64 32 生成的随机串"
-NEXT_PUBLIC_MEDIA_BASE_URL="https://stephenmccready.asia/mandarin"
+NEXT_PUBLIC_MEDIA_BASE_URL="/media"
 ```
 
 ### 3. 初始化数据库结构
@@ -92,9 +92,9 @@ npm run build && npm run start
 
 ## 媒体资源
 
-- **音频与图片**：通过 `NEXT_PUBLIC_MEDIA_BASE_URL` 指向托管目录（默认指向原项目
-  公开的 `/mandarin` 目录，音频在 `<base>/audio/*.mp3`、图片在 `<base>/img/*.gif`），
-  可改为自托管 CDN。缺失资源会优雅降级。
+- **音频**：运行 `npm run content:download-audio` 从原站拉取到 `public/media/audio/`，
+  将 `NEXT_PUBLIC_MEDIA_BASE_URL` 设为 `/media` 即可本地播放（约 500+ 个 mp3/m4a）。
+- **图片**：课文/词卡图在 `public/media/img/`；部分练习配图无公开源，已转为纯文字版。
 - **汉字笔顺**：整字笔顺与单字卡片改用 [HanziWriter](https://hanziwriter.org/)
   动态渲染——交互式动画笔顺 + 描红练习，自动覆盖全部汉字，无需逐字图片。
 - **基本笔画**：横折提、弯钩等复合笔画以内联 SVG 矢量示意呈现。
@@ -110,4 +110,5 @@ npm run build && npm run start
 | `npm run db:push` | 同步 Prisma schema 到数据库 |
 | `npm run db:migrate` | 创建并应用迁移 |
 | `npm run content:migrate` | 迁移 legacy 课程内容（`-- --dry-run` 可仅预览解析结果） |
+| `npm run content:download-audio` | 下载课文音频到 `public/media/audio/` |
 | `npm run db:seed` | 创建演示账号 |
