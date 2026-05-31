@@ -1,0 +1,48 @@
+{
+  "name": "hsk-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HSK (Hànyǔ Shuǐpíng Kǎoshì) Chinese learning platform, rebuilt with Next.js.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx scripts/seed-demo.ts",
+    "content:migrate": "tsx scripts/migrate-content.ts",
+    "content:crop-l1-images": "/opt/anaconda3/bin/python scripts/crop-l1-picture-words.py",
+    "content:crop-l2-images": "/opt/anaconda3/bin/python scripts/crop-l2-picture-words.py",
+    "content:update-l1-pictures": "tsx scripts/update-l1-picture-sections.ts",
+    "content:sync-l1-pictures": "tsx scripts/sync-l1-picture-sections.ts",
+    "content:sync-l1-lesson-images": "tsx scripts/sync-l1-lesson-images.ts",
+    "content:sync-all": "npm run content:crop-l1-images && npm run content:crop-l2-images && npm run content:sync-l1-pictures && npm run content:sync-l1-lesson-images"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "bcryptjs": "^2.4.3",
+    "clsx": "^2.1.1",
+    "hanzi-writer": "^3.7.3",
+    "lucide-react": "^0.469.0",
+    "next": "^15.5.18",
+    "next-auth": "5.0.0-beta.25",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "server-only": "^0.0.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "cheerio": "^1.0.0",
+    "prisma": "^6.1.0",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

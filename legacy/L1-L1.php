@@ -26,7 +26,7 @@ if(login_check($mysqli) == true) {
 	<div class="lessonHeaderRight"><h2>Nǐ hǎo<br/>你好<br/><b>Hello</b></h2></div>
 </div>
 <div class="container-fluid">
-	<h4 class="sublesson">漯文 Text 1. <button onclick="play('01-1');">&#128191; 01-1</button>
+	<h4 class="sublesson">课文 Text 1. <button onclick="play('01-1');">&#128191; 01-1</button>
 	<audio controls="" preload="metadata" id="01-1"><source src="../mandarin/audio/01-01.mp3" type="audio/mpeg">No audio</audio>
 	</h4>
 	<div class="col-xs-12 col-md-6 col">
@@ -50,7 +50,7 @@ if(login_check($mysqli) == true) {
 		</table>
 		</div>
 	</div>
-	<h4 class="sublesson">漯文 Text 2. (kè wén èr)<button onclick="play('01-2');">&#128191; 01-2</button>
+	<h4 class="sublesson">课文 Text 2. (kè wén èr)<button onclick="play('01-2');">&#128191; 01-2</button>
 	<audio controls="" preload="metadata" id="01-2"><source src="../mandarin/audio/01-02.mp3" type="audio/mpeg">No audio</audio>
 	</h4>
 	<div class="col-xs-12 col-md-6 col">
@@ -76,7 +76,7 @@ if(login_check($mysqli) == true) {
 		</table>
 		</div>
 	</div>
-	<h4 class="sublesson">漯文 Text 3. <button onclick="play('01-3');">&#128191; 01-3</button>
+	<h4 class="sublesson">课文 Text 3. <button onclick="play('01-3');">&#128191; 01-3</button>
 	<audio controls="" preload="metadata" id="01-3"><source src="../mandarin/audio/01-03.mp3" type="audio/mpeg">No audio</audio>
 	</h4>
 	<div class="col-xs-12 col-md-6 col">
@@ -438,7 +438,7 @@ if(login_check($mysqli) == true) {
 <audio class="hidden" controls="" preload="metadata" id="kan4hei1ban3"><source src="../mandarin/audio/kan4hei1ban3.m4a" type="audio/mpeg">No audio</audio>
 <audio class="hidden" controls="" preload="metadata" id="gen1wo3du2"><source src="../mandarin/audio/gen1wo3du2.m4a" type="audio/mpeg">No audio</audio>
 <div class="container-fluid">
-	<h3>课堂月语 Classroom Expressions</h3>
+	<h3>课堂用语 Classroom Expressions</h3>
 	<hr />
 	<table class="table table-condensed table-responsive">
 		<tr>

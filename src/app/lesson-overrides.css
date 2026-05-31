@@ -1,0 +1,335 @@
+/* Lesson UI overrides — separate file so Tailwind does not truncate globals.css */
+
+/* Interactive stroke-order widget (HanziWriter) */
+.lesson-content .hanzi-widget {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.5rem 0.75rem 0.5rem 0;
+  vertical-align: top;
+}
+
+.lesson-content .hanzi-target {
+  width: 96px;
+  height: 96px;
+  border-radius: 0.6rem;
+  background-color: color-mix(in oklab, currentColor 4%, transparent);
+  background-image: linear-gradient(currentColor 1px, transparent 1px),
+    linear-gradient(90deg, currentColor 1px, transparent 1px),
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.5px),
+      color-mix(in oklab, currentColor 30%, transparent) calc(50% - 0.5px),
+      color-mix(in oklab, currentColor 30%, transparent) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      -45deg,
+      transparent calc(50% - 0.5px),
+      color-mix(in oklab, currentColor 30%, transparent) calc(50% - 0.5px),
+      color-mix(in oklab, currentColor 30%, transparent) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+  background-size: 50% 50%, 50% 50%, 100% 100%, 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid color-mix(in oklab, currentColor 15%, transparent);
+}
+
+.lesson-content .hanzi-widget figcaption {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  text-align: center;
+  max-width: 9rem;
+}
+
+.lesson-content .hanzi-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.lesson-content .hanzi-actions button {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.4rem;
+  background-color: color-mix(in oklab, currentColor 8%, transparent);
+  transition: background-color 0.15s;
+  cursor: pointer;
+}
+
+.lesson-content .hanzi-actions button:hover {
+  background-color: color-mix(in oklab, currentColor 16%, transparent);
+}
+
+/* Basic compound stroke illustration (inline SVG) */
+.lesson-content .stroke-shape {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0.4rem 0.75rem 0.4rem 0;
+  vertical-align: top;
+}
+
+.lesson-content .stroke-shape figcaption {
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.lesson-content .stroke-shape figcaption b {
+  display: block;
+}
+
+.lesson-content .stroke-shape figcaption span {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+/* L1 pinyin: letter above, circular play button below */
+.lesson-content .pinyin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(3.5rem, 1fr));
+  gap: 0.65rem 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.lesson-content .pinyin-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.lesson-content .pinyin-letter {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  min-height: 1.6rem;
+}
+
+.lesson-content .pinyin-play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 9999px;
+  background: var(--color-brand-500);
+  color: white;
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--color-brand-500) 40%, transparent);
+  transition: transform 0.12s, background-color 0.12s;
+  cursor: pointer;
+}
+
+.lesson-content .pinyin-play-btn:hover {
+  background: var(--color-brand-600);
+}
+
+.lesson-content .pinyin-play-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.lesson-content .pinyin-cell.is-playing .pinyin-play-btn {
+  background: var(--color-jade-600);
+  transform: scale(1.05);
+}
+
+.lesson-content .pinyin-sr-audio,
+.lesson-content .pinyin-bank-audio {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 课文对话音频（01-01.mp3 等）保留可见播放器 */
+.lesson-content > audio[controls] {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+  margin: 0.5rem 0 1rem;
+  height: 2.25rem;
+}
+
+.lesson-content .pinyin-tone-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.lesson-content .pinyin-tone-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(3.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.lesson-content .pinyin-cell.tone-1 .pinyin-play-btn {
+  background: #e11d48;
+}
+.lesson-content .pinyin-cell.tone-2 .pinyin-play-btn {
+  background: #ea580c;
+}
+.lesson-content .pinyin-cell.tone-3 .pinyin-play-btn {
+  background: #16a34a;
+}
+.lesson-content .pinyin-cell.tone-4 .pinyin-play-btn {
+  background: #2563eb;
+}
+
+@media (min-width: 768px) {
+  .lesson-content:has(> .lc-col .pinyin-grid) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem 2rem;
+    align-items: start;
+  }
+
+  .lesson-content:has(> .lc-col .pinyin-grid) > .lc-col {
+    min-width: 0;
+  }
+}
+
+/* Hide stray sound-bank tags only (not 课文 passage players) */
+.lesson-content > audio.pinyin-bank-audio {
+  display: none !important;
+}
+
+/* 01-6 / 01-7 picture + audio vocabulary cards */
+.lesson-content .picture-word-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem 0.75rem;
+  margin: 1rem 0 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .lesson-content .picture-word-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.lesson-content .picture-word-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  background: color-mix(in oklab, currentColor 3%, transparent);
+  text-align: center;
+}
+
+.lesson-content .picture-word-card.is-playing {
+  border-color: color-mix(in oklab, var(--color-brand-500) 45%, transparent);
+  background: color-mix(in oklab, var(--color-brand-500) 8%, transparent);
+}
+
+.lesson-content .picture-word-img {
+  width: 100%;
+  max-width: 11rem;
+  height: auto;
+  max-height: 7.5rem;
+  object-fit: contain;
+  border-radius: 0.35rem;
+  background: white;
+}
+
+.lesson-content .picture-word-label {
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.lesson-content .picture-word-label .eng {
+  font-size: 0.78rem;
+  opacity: 0.65;
+}
+
+/* Text dialogue illustration (from textbook PDF) */
+.lesson-content .lesson-text-figure {
+  float: right;
+  max-width: min(42%, 14rem);
+  margin: 0 0 0.75rem 1rem;
+}
+
+.lesson-content .lesson-passage-img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.4rem;
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+}
+
+@media (max-width: 640px) {
+  .lesson-content .lesson-text-figure {
+    float: none;
+    max-width: 100%;
+    margin: 0.75rem auto;
+    text-align: center;
+  }
+}
+
+/* Warm-up picture matching (L3–L10) */
+.lesson-content .warmup-match {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.lesson-content .warmup-images {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  flex: 1 1 16rem;
+}
+
+.lesson-content .warmup-fig {
+  margin: 0;
+  text-align: center;
+}
+
+.lesson-content .warmup-fig img {
+  width: 100%;
+  max-height: 5.5rem;
+  object-fit: cover;
+  border-radius: 0.35rem;
+  border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
+}
+
+.lesson-content .warmup-fig figcaption {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+.lesson-content .warmup-words {
+  flex: 1 1 12rem;
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.8;
+}
+
+/* Picture-matching exercise prompts (images removed → text cards) */
+.lesson-content .vocab-prompt-item {
+  display: inline-block;
+  min-width: 7.5rem;
+  padding: 0.55rem 0.85rem;
+  margin: 0.35rem 0.5rem 0.35rem 0;
+  border-radius: 0.55rem;
+  border: 1px solid color-mix(in oklab, var(--color-brand-500) 25%, transparent);
+  background: color-mix(in oklab, var(--color-brand-500) 6%, transparent);
+  font-weight: 600;
+  line-height: 1.35;
+  vertical-align: top;
+}

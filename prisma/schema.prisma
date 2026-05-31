@@ -1,0 +1,156 @@
+// HSK learning platform schema.
+// Core auth tables (members / user_account / login_attempts) preserve the
+// original PHP application's database design; content + progress tables are new.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// Application users. Maps to the original `members` table.
+model Member {
+  id       Int    @id @default(autoincrement())
+  username String @unique @db.VarChar(64)
+  email    String @unique @db.VarChar(190)
+  password String @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  account       UserAccount?
+  loginAttempts LoginAttempt[]
+  progress      UserProgress[]
+
+  @@map("members")
+}
+
+/// Per-user access level + validity window. Maps to original `user_account`.
+/// member_level 1..6 controls which HSK levels are unlocked (matches menu.php).
+model UserAccount {
+  userId      Int      @id @map("user_id")
+  memberLevel Int      @default(0) @map("member_level")
+  fromDate    DateTime @default(now()) @map("from_date")
+  thruDate    DateTime @default(dbgenerated("'2999-12-31 00:00:00'")) @map("thru_date")
+
+  member Member @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_account")
+}
+
+/// Failed login attempts for brute-force throttling. Maps to `login_attempts`.
+model LoginAttempt {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  attemptedAt DateTime @default(now()) @map("attempted_at")
+
+  member Member @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, attemptedAt])
+  @@map("login_attempts")
+}
+
+/// A single HSK lesson (e.g. Level 3, Lesson 1).
+model Lesson {
+  id           Int    @id @default(autoincrement())
+  level        Int
+  number       Int
+  slug         String @unique @db.VarChar(32)
+  titleHanzi   String @map("title_hanzi") @db.VarChar(255)
+  titlePinyin  String @map("title_pinyin") @db.VarChar(255)
+  titleEnglish String @map("title_english") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sections LessonSection[]
+  progress UserProgress[]
+
+  @@unique([level, number])
+  @@index([level])
+  @@map("lessons")
+}
+
+enum SectionType {
+  TEXT // 课文 dialogue/text passage
+  DIALOGUE // standalone dialogue
+  WORDS // 生词 vocabulary table
+  NOTE // 语法 grammar note
+  EXERCISE // 练习 exercise
+  PROVERB // 谚语 / common saying
+  CHARS // 汉字 single-component characters / stroke order
+  WARMUP // warm-up activity
+}
+
+/// An ordered content block within a lesson. Structured content (dialogue
+/// lines, vocabulary) is normalised into child rows; richer / irregular
+/// content is preserved as sanitised HTML in `contentHtml`.
+model LessonSection {
+  id           Int         @id @default(autoincrement())
+  lessonId     Int         @map("lesson_id")
+  type         SectionType
+  order        Int
+  titleHanzi   String?     @map("title_hanzi") @db.Text
+  titlePinyin  String?     @map("title_pinyin") @db.Text
+  titleEnglish String?     @map("title_english") @db.Text
+  audioId      String?     @map("audio_id") @db.VarChar(64)
+  contentHtml  String?     @map("content_html") @db.MediumText
+
+  lesson    Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  dialogue  DialogueLine[]
+  words     Word[]
+
+  @@index([lessonId, order])
+  @@map("lesson_sections")
+}
+
+/// One line of a dialogue/text passage.
+model DialogueLine {
+  id        Int     @id @default(autoincrement())
+  sectionId Int     @map("section_id")
+  order     Int
+  speaker   String? @db.VarChar(64)
+  hanzi     String  @db.Text
+  pinyin    String? @db.Text
+  english   String? @db.Text
+
+  section LessonSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId, order])
+  @@map("dialogue_lines")
+}
+
+/// A vocabulary entry (生词).
+model Word {
+  id           Int     @id @default(autoincrement())
+  sectionId    Int     @map("section_id")
+  order        Int
+  hanzi        String  @db.VarChar(64)
+  pinyin       String? @db.VarChar(128)
+  partOfSpeech String? @map("part_of_speech") @db.VarChar(32)
+  english      String? @db.Text
+
+  section LessonSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId, order])
+  @@map("words")
+}
+
+/// Tracks a member's progress through a lesson (new feature).
+model UserProgress {
+  id           Int       @id @default(autoincrement())
+  userId       Int       @map("user_id")
+  lessonId     Int       @map("lesson_id")
+  completed    Boolean   @default(false)
+  lastViewedAt DateTime  @default(now()) @updatedAt @map("last_viewed_at")
+  completedAt  DateTime? @map("completed_at")
+
+  member Member @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@map("user_progress")
+}

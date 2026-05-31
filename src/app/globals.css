@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #1a1a2e;
+  --color-paper: #fbfbfd;
+
+  --color-brand-50: #fef2f2;
+  --color-brand-100: #fee2e2;
+  --color-brand-200: #fecaca;
+  --color-brand-300: #fca5a5;
+  --color-brand-400: #f87171;
+  --color-brand-500: #e11d48;
+  --color-brand-600: #c2153b;
+  --color-brand-700: #a01030;
+  --color-brand-800: #831029;
+  --color-brand-900: #6e1226;
+
+  --color-jade-400: #34d399;
+  --color-jade-500: #10b981;
+  --color-jade-600: #059669;
+
+  --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --radius-card: 1rem;
+}
+
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f0f1a;
+    --foreground: #ececf1;
+  }
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Pinyin tone-mark text accent used throughout lessons. */
+.pinyin {
+  color: var(--color-brand-600);
+}
+
+/* ------------------------------------------------------------------ */
+/* Rendered lesson content (migrated from legacy markup).             */
+/* Pinyin / English / extra-hanzi spans are hidden until toggled on   */
+/* via data attributes set by the LessonContent client component.     */
+/* ------------------------------------------------------------------ */
+.lesson-content {
+  line-height: 1.8;
+  font-size: 1.0625rem;
+}
+.lesson-content p {
+  margin: 0.75rem 0;
+}
+.lesson-content b,
+.lesson-content strong {
+  font-weight: 700;
+}
+
+/* Responsive multi-column reading layout (legacy used Bootstrap cols). */
+.lesson-content .lc-col {
+  margin-bottom: 1rem;
+}
+@media (min-width: 768px) {
+  .lesson-content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 2rem;
+    align-items: start;
+  }
+  .lesson-content > *:not(.lc-col) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Toggleable annotations. */
+.lesson-content .pyn,
+.lesson-content .eng,
+.lesson-content .xhan {
+  display: none;
+}
+.lesson-content[data-pinyin="on"] .pyn,
+.lesson-content[data-english="on"] .eng,
+.lesson-content[data-hanzi="on"] .xhan {
+  display: inline;
+}
+.lesson-content .pyn,
+.lesson-content .pynD {
+  color: var(--color-brand-600);
+}
+.lesson-content .eng,
+.lesson-content .engD {
+  color: var(--color-jade-600);
+}
+.lesson-content .xhan,
+.lesson-content .xhanD {
+  color: #9d174d;
+}
+
+/* Masked speaker labels in level-1 texts. */
+.lesson-content .masked {
+  color: transparent;
+}
+
+/* Section heading bars carried over from legacy. */
+.lesson-content .textSection,
+.lesson-content .sublesson,
+.lesson-content .sublessonHeader {
+  margin: 1.25rem 0 0.5rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-jade-400) 18%, transparent);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Tables (vocabulary, fill-in-the-blank, etc.). */
+.lesson-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.95rem;
+}
+.lesson-content th,
+.lesson-content td {
+  border: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+.lesson-content th {
+  background: color-mix(in oklab, currentColor 6%, transparent);
+}
+
+.lesson-content ol,
+.lesson-content ul {
+  margin: 0.5rem 0 1rem 1.25rem;
+  list-style-position: outside;
+}
+.lesson-content ol {
+  list-style: decimal;
+}
+.lesson-content ul {
+  list-style: disc;
+}
+.lesson-content li {
+  margin-bottom: 0.4rem;
+}
+
+.lesson-content audio {
+  width: 100%;
+  max-width: 22rem;
+  margin: 0.5rem 0;
+  height: 2.25rem;
+}
+
+.lesson-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+.lesson-content .indent {
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  border: 1px dashed color-mix(in oklab, currentColor 25%, transparent);
+  border-radius: 0.5rem;
+}
