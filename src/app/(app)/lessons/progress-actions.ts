@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { setCompleted } from "@/lib/progress";
 
 export async function toggleLessonComplete(
@@ -10,9 +10,9 @@ export async function toggleLessonComplete(
   number: number,
   completed: boolean,
 ) {
-  const session = await auth();
-  if (!session?.user) return;
-  await setCompleted(Number(session.user.id), lessonId, completed);
+  const user = await getCurrentUser();
+  if (!user) return;
+  await setCompleted(user.id, lessonId, completed);
   revalidatePath(`/lessons/${level}/${number}`);
   revalidatePath("/dashboard");
 }

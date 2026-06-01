@@ -1,8 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/db";
 
-/** Record that a member opened a lesson (upserts lastViewedAt). */
-export async function markViewed(userId: number, lessonId: number) {
+/** Record that a user opened a lesson (upserts lastViewedAt). */
+export async function markViewed(userId: string, lessonId: number) {
   await prisma.userProgress.upsert({
     where: { userId_lessonId: { userId, lessonId } },
     update: {},
@@ -11,7 +11,7 @@ export async function markViewed(userId: number, lessonId: number) {
 }
 
 export async function setCompleted(
-  userId: number,
+  userId: string,
   lessonId: number,
   completed: boolean,
 ) {
@@ -33,7 +33,7 @@ export interface ProgressInfo {
 }
 
 export async function getProgressMap(
-  userId: number,
+  userId: string,
 ): Promise<Map<number, ProgressInfo>> {
   const rows = await prisma.userProgress.findMany({
     where: { userId },
@@ -48,7 +48,7 @@ export async function getProgressMap(
 }
 
 /** The most recently viewed lesson, for the "continue learning" entry point. */
-export async function getContinueLesson(userId: number) {
+export async function getContinueLesson(userId: string) {
   const latest = await prisma.userProgress.findFirst({
     where: { userId },
     orderBy: { lastViewedAt: "desc" },

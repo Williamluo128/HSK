@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { Home } from "lucide-react";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { UserMenu } from "./user-menu";
 
 export async function Navbar() {
-  const session = await auth();
-  const user = session?.user;
+  const user = await getCurrentUser();
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-paper/80 backdrop-blur dark:border-white/10 dark:bg-[#0f0f1a]/80">

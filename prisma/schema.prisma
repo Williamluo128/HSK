@@ -1,6 +1,5 @@
 // HSK learning platform schema.
-// Core auth tables (members / user_account / login_attempts) preserve the
-// original PHP application's database design; content + progress tables are new.
+// User auth lives in Supabase; MySQL stores lesson content + per-user progress.
 
 generator client {
   provider = "prisma-client-js"
@@ -9,47 +8,6 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-}
-
-/// Application users. Maps to the original `members` table.
-model Member {
-  id       Int    @id @default(autoincrement())
-  username String @unique @db.VarChar(64)
-  email    String @unique @db.VarChar(190)
-  password String @db.VarChar(255)
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  account       UserAccount?
-  loginAttempts LoginAttempt[]
-  progress      UserProgress[]
-
-  @@map("members")
-}
-
-/// Per-user access level + validity window. Maps to original `user_account`.
-/// member_level 1..6 controls which HSK levels are unlocked (matches menu.php).
-model UserAccount {
-  userId      Int      @id @map("user_id")
-  memberLevel Int      @default(0) @map("member_level")
-  fromDate    DateTime @default(now()) @map("from_date")
-  thruDate    DateTime @default(dbgenerated("'2999-12-31 00:00:00'")) @map("thru_date")
-
-  member Member @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_account")
-}
-
-/// Failed login attempts for brute-force throttling. Maps to `login_attempts`.
-model LoginAttempt {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @map("user_id")
-  attemptedAt DateTime @default(now()) @map("attempted_at")
-
-  member Member @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, attemptedAt])
-  @@map("login_attempts")
 }
 
 /// A single HSK lesson (e.g. Level 3, Lesson 1).
@@ -74,19 +32,16 @@ model Lesson {
 }
 
 enum SectionType {
-  TEXT // 课文 dialogue/text passage
-  DIALOGUE // standalone dialogue
-  WORDS // 生词 vocabulary table
-  NOTE // 语法 grammar note
-  EXERCISE // 练习 exercise
-  PROVERB // 谚语 / common saying
-  CHARS // 汉字 single-component characters / stroke order
-  WARMUP // warm-up activity
+  TEXT
+  DIALOGUE
+  WORDS
+  NOTE
+  EXERCISE
+  PROVERB
+  CHARS
+  WARMUP
 }
 
-/// An ordered content block within a lesson. Structured content (dialogue
-/// lines, vocabulary) is normalised into child rows; richer / irregular
-/// content is preserved as sanitised HTML in `contentHtml`.
 model LessonSection {
   id           Int         @id @default(autoincrement())
   lessonId     Int         @map("lesson_id")
@@ -106,7 +61,6 @@ model LessonSection {
   @@map("lesson_sections")
 }
 
-/// One line of a dialogue/text passage.
 model DialogueLine {
   id        Int     @id @default(autoincrement())
   sectionId Int     @map("section_id")
@@ -122,7 +76,6 @@ model DialogueLine {
   @@map("dialogue_lines")
 }
 
-/// A vocabulary entry (生词).
 model Word {
   id           Int     @id @default(autoincrement())
   sectionId    Int     @map("section_id")
@@ -138,16 +91,15 @@ model Word {
   @@map("words")
 }
 
-/// Tracks a member's progress through a lesson (new feature).
+/// Lesson progress keyed by Supabase auth user UUID.
 model UserProgress {
   id           Int       @id @default(autoincrement())
-  userId       Int       @map("user_id")
+  userId       String    @map("user_id") @db.VarChar(36)
   lessonId     Int       @map("lesson_id")
   completed    Boolean   @default(false)
   lastViewedAt DateTime  @default(now()) @updatedAt @map("last_viewed_at")
   completedAt  DateTime? @map("completed_at")
 
-  member Member @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId])

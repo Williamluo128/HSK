@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "登录 Login" };
 
 export default async function LoginPage() {
-  const session = await auth();
-  if (session?.user) redirect("/dashboard");
+  const user = await getCurrentUser();
+  if (user) redirect("/dashboard");
 
   return (
     <div>

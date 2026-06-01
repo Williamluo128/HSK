@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { RegisterForm } from "./register-form";
 
 export const metadata: Metadata = { title: "注册 Register" };
 
 export default async function RegisterPage() {
-  const session = await auth();
-  if (session?.user) redirect("/dashboard");
+  const user = await getCurrentUser();
+  if (user) redirect("/dashboard");
 
   return (
     <div>

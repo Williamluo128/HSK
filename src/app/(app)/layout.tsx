@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { Navbar } from "@/components/navbar";
 
 export default async function AppLayout({
@@ -7,8 +7,8 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
 
   return (
     <div className="min-h-dvh">

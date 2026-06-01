@@ -1,10 +1,9 @@
 "use server";
 
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { AuthError } from "next-auth";
-import { prisma } from "@/lib/db";
-import { hashPassword } from "@/lib/password";
-import { signIn } from "@/auth";
+import { redirect } from "next/navigation";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export interface ActionState {
   error?: string;
@@ -21,18 +20,17 @@ export async function loginAction(
     return { error: "请输入邮箱和密码。" };
   }
 
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    return { error: "邮箱或密码错误。" };
+  }
+
   try {
-    await signIn("credentials", {
-      email,
-      password,
-      redirectTo: "/dashboard",
-    });
-    return {};
+    redirect("/dashboard");
   } catch (error) {
     if (isRedirectError(error)) throw error;
-    if (error instanceof AuthError) {
-      return { error: "邮箱或密码错误，或账号已被临时锁定。" };
-    }
     return { error: "登录失败，请稍后重试。" };
   }
 }
@@ -66,35 +64,42 @@ export async function registerAction(
     return { error: "两次输入的密码不一致。" };
   }
 
-  const existing = await prisma.member.findFirst({
-    where: { OR: [{ email }, { username }] },
-    select: { email: true, username: true },
+  try {
+    const admin = createAdminClient();
+    const { data: taken } = await admin
+      .from("profiles")
+      .select("username")
+      .eq("username", username)
+      .maybeSingle();
+    if (taken) {
+      return { error: "该用户名已被占用。" };
+    }
+  } catch {
+    return { error: "认证服务未配置，请联系管理员。" };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { username } },
   });
-  if (existing) {
+
+  if (error) {
+    if (error.message.toLowerCase().includes("already registered")) {
+      return { error: "该邮箱已被注册。" };
+    }
+    return { error: error.message || "注册失败，请稍后重试。" };
+  }
+
+  if (data.user && !data.session) {
     return {
-      error:
-        existing.email === email ? "该邮箱已被注册。" : "该用户名已被占用。",
+      error: "注册成功！请在邮箱中点击确认链接后再登录（或在 Supabase 关闭 Email Confirmations）。",
     };
   }
 
-  const hashed = await hashPassword(password);
-  // New members get level 1 access by default so they can start learning.
-  await prisma.member.create({
-    data: {
-      username,
-      email,
-      password: hashed,
-      account: { create: { memberLevel: 1 } },
-    },
-  });
-
   try {
-    await signIn("credentials", {
-      email,
-      password,
-      redirectTo: "/dashboard",
-    });
-    return {};
+    redirect("/dashboard");
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return { error: "注册成功，但自动登录失败，请前往登录页。" };

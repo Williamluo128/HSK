@@ -1,33 +1,16 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { CalendarDays, GraduationCap, Mail, UserCircle, CheckCircle2 } from "lucide-react";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { getProgressMap } from "@/lib/progress";
 
 export const metadata: Metadata = { title: "个人资料 Profile" };
 
-function fmt(date: Date | null | undefined): string {
-  if (!date) return "—";
-  return new Intl.DateTimeFormat("zh-CN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-}
-
 export default async function ProfilePage() {
-  const session = await auth();
-  const user = session!.user;
-  const userId = Number(user.id);
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
 
-  const [member, progress] = await Promise.all([
-    prisma.member.findUnique({
-      where: { id: userId },
-      include: { account: true },
-    }),
-    getProgressMap(userId),
-  ]);
-
+  const progress = await getProgressMap(user.id);
   const completed = Array.from(progress.values()).filter(
     (p) => p.completed,
   ).length;
@@ -48,10 +31,10 @@ export default async function ProfilePage() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Row icon={UserCircle} label="用户 ID">
-          {userId}
+          {user.id.slice(0, 8)}…
         </Row>
         <Row icon={Mail} label="邮箱">
-          {member?.email}
+          {user.email}
         </Row>
         <Row icon={GraduationCap} label="可访问等级">
           1 – {user.memberLevel} 级
@@ -59,11 +42,8 @@ export default async function ProfilePage() {
         <Row icon={CheckCircle2} label="已完成课程">
           {completed} 课
         </Row>
-        <Row icon={CalendarDays} label="有效期开始">
-          {fmt(member?.account?.fromDate)}
-        </Row>
-        <Row icon={CalendarDays} label="有效期结束">
-          {fmt(member?.account?.thruDate)}
+        <Row icon={CalendarDays} label="认证服务">
+          Supabase
         </Row>
       </div>
     </div>

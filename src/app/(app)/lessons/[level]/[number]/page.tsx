@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { getLesson, getAdjacentLessons, LEVEL_LABELS } from "@/lib/lessons";
 import { isLessonNavAnchor, navAnchorLabel } from "@/lib/lesson-section-nav";
 import { markViewed } from "@/lib/progress";
@@ -29,24 +29,22 @@ export default async function LessonPage({ params }: PageProps) {
   const number = Number(numberStr);
   if (!Number.isInteger(level) || !Number.isInteger(number)) notFound();
 
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
 
-  // Enforce level access (matches legacy member_level gating).
-  if (level > session.user.memberLevel) {
+  if (level > user.memberLevel) {
     redirect("/dashboard");
   }
 
   const lesson = await getLesson(level, number);
   if (!lesson) notFound();
 
-  const userId = Number(session.user.id);
-  await markViewed(userId, lesson.id);
+  await markViewed(user.id, lesson.id);
 
   const [{ prev, next }, progress] = await Promise.all([
     getAdjacentLessons(level, number),
     prisma.userProgress.findUnique({
-      where: { userId_lessonId: { userId, lessonId: lesson.id } },
+      where: { userId_lessonId: { userId: user.id, lessonId: lesson.id } },
       select: { completed: true },
     }),
   ]);

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BookOpen, GraduationCap, PlayCircle, CheckCircle2, Lock } from "lucide-react";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { getLessonsForMember } from "@/lib/lessons";
 import { getProgressMap, getContinueLesson } from "@/lib/progress";
 import { ConfigError } from "@/components/config-error";
@@ -10,8 +10,7 @@ import { ConfigError } from "@/components/config-error";
 export const metadata: Metadata = { title: "课程总览 Dashboard" };
 
 export default async function DashboardPage() {
-  const session = await auth();
-  const user = session?.user;
+  const user = await getCurrentUser();
   if (!user) redirect("/login");
 
   let groups;
@@ -20,22 +19,22 @@ export default async function DashboardPage() {
   try {
     [groups, progress, cont] = await Promise.all([
       getLessonsForMember(user.memberLevel),
-      getProgressMap(Number(user.id)),
-      getContinueLesson(Number(user.id)),
+      getProgressMap(user.id),
+      getContinueLesson(user.id),
     ]);
   } catch (error) {
     console.error("[DashboardPage] failed to load data", error);
     return (
       <ConfigError title="课程内容暂时无法加载">
-        <p>数据库连接失败。请在 Vercel 检查环境变量：</p>
+        <p>数据库连接失败。请在 Vercel 检查：</p>
         <ul className="list-inside list-disc text-left">
           <li>
-            <code className="text-xs">DATABASE_URL</code> 末尾应为{" "}
-            <code className="text-xs">?sslaccept=strict</code>（不要用{" "}
-            <code className="text-xs">ssl-mode=REQUIRED</code>）
+            Supabase 环境变量（<code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code>、
+            <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>）
           </li>
           <li>
-            <code className="text-xs">AUTH_SECRET</code> 已配置并已 Redeploy
+            课程内容库 <code className="text-xs">DATABASE_URL</code> 末尾为{" "}
+            <code className="text-xs">?sslaccept=strict</code>
           </li>
         </ul>
         <p className="pt-2">
