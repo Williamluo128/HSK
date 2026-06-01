@@ -78,9 +78,9 @@ export function parseLegacyLessonPictureSections(lessonNumber: number): LegacyPi
       ? $(h4).closest(".col-xs-12, .col")
       : $(h4).parent();
     const words: LegacyWordCard[] = [];
-    let scope = h5.nextUntil("h4.sublesson, h4:not(.sublesson)");
-    if (!scope.length) scope = block;
-    scope.find("button[onclick*='play(']").each((_, btn) => {
+    const nextScope = h5.nextUntil("h4.sublesson, h4:not(.sublesson)");
+    const searchRoot = nextScope.length ? nextScope : block;
+    searchRoot.find("button[onclick*='play(']").each((_, btn) => {
       if ($(btn).attr("disabled")) return;
       const onclick = $(btn).attr("onclick") ?? "";
       const m = onclick.match(/play\(['"]([^'"]+)['"]\)/);
