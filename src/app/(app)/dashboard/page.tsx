@@ -1,22 +1,51 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { BookOpen, GraduationCap, PlayCircle, CheckCircle2, Lock } from "lucide-react";
 import { auth } from "@/auth";
 import { getLessonsForMember } from "@/lib/lessons";
 import { getProgressMap, getContinueLesson } from "@/lib/progress";
+import { ConfigError } from "@/components/config-error";
 
 export const metadata: Metadata = { title: "课程总览 Dashboard" };
 
 export default async function DashboardPage() {
   const session = await auth();
-  const user = session!.user;
-  const memberLevel = user.memberLevel;
+  const user = session?.user;
+  if (!user) redirect("/login");
 
-  const [groups, progress, cont] = await Promise.all([
-    getLessonsForMember(memberLevel),
-    getProgressMap(Number(user.id)),
-    getContinueLesson(Number(user.id)),
-  ]);
+  let groups;
+  let progress;
+  let cont;
+  try {
+    [groups, progress, cont] = await Promise.all([
+      getLessonsForMember(user.memberLevel),
+      getProgressMap(Number(user.id)),
+      getContinueLesson(Number(user.id)),
+    ]);
+  } catch (error) {
+    console.error("[DashboardPage] failed to load data", error);
+    return (
+      <ConfigError title="课程内容暂时无法加载">
+        <p>数据库连接失败。请在 Vercel 检查环境变量：</p>
+        <ul className="list-inside list-disc text-left">
+          <li>
+            <code className="text-xs">DATABASE_URL</code> 末尾应为{" "}
+            <code className="text-xs">?sslaccept=strict</code>（不要用{" "}
+            <code className="text-xs">ssl-mode=REQUIRED</code>）
+          </li>
+          <li>
+            <code className="text-xs">AUTH_SECRET</code> 已配置并已 Redeploy
+          </li>
+        </ul>
+        <p className="pt-2">
+          <Link href="/login" className="font-semibold text-brand-600 hover:underline">
+            返回登录
+          </Link>
+        </p>
+      </ConfigError>
+    );
+  }
 
   const totalLessons = groups.reduce((a, g) => a + g.lessons.length, 0);
   const completedCount = Array.from(progress.values()).filter(
@@ -32,7 +61,7 @@ export default async function DashboardPage() {
         </p>
         <h1 className="mt-1 text-3xl font-black">{user.username}</h1>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Stat icon={GraduationCap} label="可访问等级" value={`1 – ${memberLevel} 级`} />
+          <Stat icon={GraduationCap} label="可访问等级" value={`1 – ${user.memberLevel} 级`} />
           <Stat icon={BookOpen} label="可学课程" value={`${totalLessons} 课`} />
           <Stat
             icon={CheckCircle2}
@@ -57,7 +86,7 @@ export default async function DashboardPage() {
         </Link>
       )}
 
-      {memberLevel < 1 ? (
+      {user.memberLevel < 1 ? (
         <div className="rounded-2xl border border-black/10 bg-white/70 p-8 text-center dark:border-white/10 dark:bg-white/5">
           <Lock className="mx-auto mb-3 size-10 text-black/30 dark:text-white/30" />
           <p className="font-medium">当前暂无课程访问权限</p>

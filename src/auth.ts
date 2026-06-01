@@ -7,6 +7,7 @@ const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 2 * 60 * 60 * 1000; // 2 hours, matching legacy checkbrute()
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   trustHost: true,
   session: { strategy: "jwt" },
   pages: {
