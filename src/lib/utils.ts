@@ -7,7 +7,12 @@ export function cn(...inputs: ClassValue[]) {
 
 /** Resolve a media asset (audio / image) against the configured media base URL. */
 export function mediaUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? "/media";
+  const raw = process.env.NEXT_PUBLIC_MEDIA_BASE_URL?.trim();
+  const base = raw && raw !== "/" ? raw.replace(/\/+$/, "") : "/media";
   const clean = path.replace(/^\.?\/+/, "");
-  return `${base.replace(/\/+$/, "")}/${clean}`;
+  // Avoid audio/foo.mp3 when base is empty on Vercel (resolves under /lessons/…).
+  if (!base || base === "") {
+    return `/media/${clean}`;
+  }
+  return `${base}/${clean}`;
 }

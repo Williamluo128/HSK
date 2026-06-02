@@ -8,6 +8,7 @@ import { isLessonNavAnchor, navAnchorLabel } from "@/lib/lesson-section-nav";
 import { markViewed } from "@/lib/progress";
 import { prisma } from "@/lib/db";
 import { LessonContent } from "@/components/lesson-content";
+import { resolveMediaInHtml } from "@/lib/resolve-media-html";
 import { LessonNav } from "@/components/lesson-nav";
 import { LessonCompleteButton } from "@/components/lesson-complete-button";
 
@@ -100,7 +101,14 @@ export default async function LessonPage({ params }: PageProps) {
         </nav>
       )}
 
-      <LessonContent sections={lesson.sections} />
+      <LessonContent
+        sections={lesson.sections.map((s) => ({
+          ...s,
+          contentHtml: s.contentHtml
+            ? resolveMediaInHtml(s.contentHtml)
+            : s.contentHtml,
+        }))}
+      />
 
       <div className="mt-8 flex justify-center">
         <LessonCompleteButton

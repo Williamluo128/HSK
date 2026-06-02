@@ -2,6 +2,13 @@ import { mediaUrl } from "@/lib/utils";
 import { hydratePinyinLesson } from "@/components/hydrate-pinyin";
 import { hydratePictureWordCards } from "@/components/hydrate-picture-words";
 
+function guessAudioType(url: string): string {
+  if (url.endsWith(".m4a")) return "audio/mp4";
+  if (url.endsWith(".wav")) return "audio/wav";
+  if (url.endsWith(".ogg")) return "audio/ogg";
+  return "audio/mpeg";
+}
+
 /**
  * Presentation-layer hydration for migrated lesson HTML.
  *
@@ -159,9 +166,19 @@ function buildHanziWidget(
 export function hydrateLessonContent(root: HTMLElement): void {
   hydratePinyinLesson(root);
 
-  root.querySelectorAll<HTMLElement>("audio[data-src], audio source[data-src]").forEach((node) => {
-    const src = node.getAttribute("data-src");
-    if (src) node.setAttribute("src", mediaUrl(src));
+  root.querySelectorAll("audio").forEach((audio) => {
+    const source = audio.querySelector("source[data-src], source[src]");
+    const raw =
+      source?.getAttribute("data-src") ??
+      source?.getAttribute("src") ??
+      audio.getAttribute("data-src");
+    if (!raw) return;
+    const url = mediaUrl(raw);
+    if (source) {
+      source.setAttribute("src", url);
+      source.setAttribute("type", source.getAttribute("type") ?? guessAudioType(url));
+    }
+    audio.setAttribute("src", url);
   });
 
   root.querySelectorAll<HTMLElement>(".tones").forEach((el) => {
